@@ -1,0 +1,135 @@
+.app-root {
+  height: 100vh;                  /* fill viewport */
+  display: flex;
+  justify-content: center;        /* center horizontally */
+  align-items: center;            /* center vertically */
+  background: #ffffff;               /* page background color */
+  color: #f5f5f5;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+
+
+.container {
+  position: relative;
+  text-align: center;
+  color: white;
+}
+
+.board-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.board-title {
+  margin: 0;
+  font-size: clamp(28px, 3vw, 42px);
+  letter-spacing: 2px;
+  color: #4a1d0a;
+  text-transform: uppercase;
+  text-shadow: 0 2px 6px rgba(0,0,0,0.25);
+}
+
+.app-root h1 {
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
+}
+
+.hq-board {
+  --grid-pad-x: calc(100% / 26);  /* tweak this to align with left/right border thickness */
+  --grid-pad-y: calc(100% / 19);  /* tweak this to align with top/bottom border thickness */
+  position: relative;
+  width: min(90vmin, 1200px);     /* responsive, but not too huge */
+  aspect-ratio: 26 / 19;          /* HeroQuest squares ratio */
+  background-image: url("/heroquest-board.png");
+  background-size: 100% 100%;     /* stretch to fit the container */
+  background-repeat: no-repeat;
+  background-position: center;
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.7);
+  border: 2px solid #333;
+  overflow: hidden;               /* keep grid/markers clipped to board */
+}
+
+/* Grid overlay that aligns to the board */
+.hq-grid {
+  position: absolute;
+  top: var(--grid-pad-y);
+  bottom: var(--grid-pad-y);
+  left: var(--grid-pad-x);
+  right: var(--grid-pad-x);
+  display: grid;
+  grid-template-rows: repeat(19, 1fr);
+  grid-template-columns: repeat(26, 1fr);
+  pointer-events: none;           /* let clicks through except on icons */
+}
+
+/* Each square */
+.hq-cell {
+  border: 1px solid rgba(70, 40, 20, 0.25);
+  position: relative;
+  box-sizing: border-box;
+}
+
+.hq-cell--has-icon {
+  pointer-events: auto;           /* clickable when an icon exists */
+  cursor: pointer;
+}
+
+.hq-cell--has-icon:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* Icon inside the cell */
+.hq-cell-icon {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  color: #4a1d0a;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+  pointer-events: none;           /* click handled by parent cell */
+}
+
+/* Modal popup */
+.hq-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.hq-modal {
+  background: #fff;
+  color: #222;
+  padding: 1rem 1.25rem;
+  border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+  width: min(320px, 90vw);
+  box-sizing: border-box;
+}
+
+.hq-modal h2 {
+  margin: 0 0 0.5rem;
+}
+
+.hq-modal p {
+  margin: 0.25rem 0;
+}
+
+.hq-modal button {
+  margin-top: 0.75rem;
+  background: #4a1d0a;
+  color: #fff;
+  border: none;
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  cursor: pointer;
+}
