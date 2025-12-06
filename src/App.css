@@ -1,8 +1,9 @@
 .app-root {
-  height: 100vh;                  /* fill viewport */
+  min-height: 100vh;                  /* allow scroll if board exceeds viewport */
   display: flex;
-  justify-content: center;        /* center horizontally */
-  align-items: center;            /* center vertically */
+  justify-content: center;            /* center horizontally */
+  align-items: flex-start;            /* prevent vertical squish; allow larger board */
+  padding: 16px;
   background: #ffffff;               /* page background color */
   color: #f5f5f5;
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
@@ -21,6 +22,7 @@
   flex-direction: column;
   align-items: center;
   gap: 12px;
+  width: 100%;
 }
 
 .board-title {
@@ -38,19 +40,22 @@
 }
 
 .hq-board {
-  --grid-pad-x: calc(100% / 26);  /* tweak this to align with left/right border thickness */
-  --grid-pad-y: calc(100% / 19);  /* tweak this to align with top/bottom border thickness */
+  --board-size: min(100vw - 32px, 2480px); /* loosen cap so board can grow wider */
+  --grid-pad-x: calc(100% / 26);     /* tweak this to align with left/right border thickness */
+  --grid-pad-y: calc(100% / 19);     /* tweak this to align with top/bottom border thickness */
+  --cell-size: calc(var(--board-size) / 26);
+  --icon-font: calc(var(--cell-size) * 0.9); /* scale symbols with board */
   position: relative;
-  width: min(90vmin, 1200px);     /* responsive, but not too huge */
-  aspect-ratio: 26 / 19;          /* HeroQuest squares ratio */
+  width: var(--board-size);
+  aspect-ratio: 26 / 19;             /* HeroQuest squares ratio */
   background-image: url("/heroquest-board.png");
-  background-size: 100% 100%;     /* stretch to fit the container */
+  background-size: 100% 100%;        /* stretch to fit the container */
   background-repeat: no-repeat;
   background-position: center;
   border-radius: 8px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.7);
   border: 2px solid #333;
-  overflow: hidden;               /* keep grid/markers clipped to board */
+  overflow: hidden;                  /* keep grid/markers clipped to board */
 }
 
 /* Grid overlay that aligns to the board */
@@ -89,7 +94,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1rem;
+  font-size: var(--icon-font);
   color: #4a1d0a;
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
   pointer-events: none;           /* click handled by parent cell */
@@ -176,4 +181,3 @@
 .hq-overlay-icon--clickable { cursor: pointer; }
 .hq-overlay-icon img { width: 100%; height: 100%; object-fit: contain; display: block; }
 .hq-overlay-icon__symbol { display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; }
-
