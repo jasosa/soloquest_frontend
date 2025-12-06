@@ -1,61 +1,62 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import "./App.css";
 import type { MapIcon } from "./types/mapIcon";
-import { ICONS, ICON_SYMBOL } from "./data/icons";
 import { useIconVisibility } from "./utils/iconVisibility";
 import { IconCell } from "./components/iconCell";
 import { IconPanel } from "./components/iconPanel";
 import { OverlayIconCell } from "./components/overlayIconCell";
 import type { MapHotSpot } from "./types/mapHotSpots";
+import { buildQuestData, type QuestData } from "./data/buildQuestData";
 import { MAP_HOT_SPOTS } from "./data/mapHotSpots";
-import { QUEST_ENTRY_BY_ID } from "./data/questEntries";
-
+import { QUEST_ENTRIES } from "./data/questEntries";
+import { ICON_SYMBOL } from "./data/icons";
 
 const ROWS = 19;
 const COLS = 26;
 
 function App() {
+  const questData = useMemo(() => buildQuestData(MAP_HOT_SPOTS, QUEST_ENTRIES), []);
+
   return (
     <div className="app-root">
       <div className="board-wrapper">
         <h1 className="board-title">HeroQuest Board</h1>
-        <HeroQuestMap />
+        <HeroQuestMap questData={questData} />
       </div>
     </div>
   );
 }
 
 
-function HeroQuestMap() {
+function HeroQuestMap({ questData }: { questData: QuestData }) {
   const [selectedHotspotId, setSelectedHotspotId] = useState<number | null>(null);
-  const { isVisible, updateVisibility } = useIconVisibility(ICONS);
+  const { isVisible, updateVisibility } = useIconVisibility(questData.icons);
 
-  // Split data: simple on-cell icons vs. overlay icons (offsets or multi-cell)
-  const gridItems = useMemo(
-    () =>
-      ICONS.filter(
-        (it) =>
-          (it.widthCells ?? 1) === 1 &&
-          (it.heightCells ?? 1) === 1 &&
-          (it.rowOffset ?? 0) === 0 &&
-          (it.colOffset ?? 0) === 0
-      ),
-    []
-  );
-  const overlayItems = useMemo(
-    () => ICONS.filter((it) => !gridItems.includes(it)),
-    [gridItems]
-  );
-  
-    const selectedHotspot = useMemo(
-    () => MAP_HOT_SPOTS.find((hs) => hs.id === selectedHotspotId) ?? null,
-    [selectedHotspotId]
+  useEffect(() => {
+    setSelectedHotspotId(null);
+  }, [questData.icons]);
+
+  const { gridItems, overlayItems } = useMemo(() => {
+    return questData.icons.reduce(
+      (buckets, icon) => {
+        const isSingleCell = (icon.widthCells ?? 1) === 1 && (icon.heightCells ?? 1) === 1;
+        const isAlignedToGrid = (icon.rowOffset ?? 0) === 0 && (icon.colOffset ?? 0) === 0;
+        const bucket = isSingleCell && isAlignedToGrid ? "gridItems" : "overlayItems";
+        buckets[bucket].push(icon);
+        return buckets;
+      },
+      { gridItems: [] as MapIcon[], overlayItems: [] as MapIcon[] }
+    );
+  }, [questData.icons]);
+
+  const selectedHotspot = useMemo(
+    () => questData.hotspots.find((hs) => hs.id === selectedHotspotId) ?? null,
+    [selectedHotspotId, questData.hotspots]
   );
 
   const selectedQuestEntry = selectedHotspot
-    ? QUEST_ENTRY_BY_ID[selectedHotspot.questEntryId]
+    ? questData.questEntriesById[selectedHotspot.questEntryId]
     : null;
-
 
   // Fast lookup for grid cells
   const iconByPosition = useMemo(() => {
@@ -68,18 +69,18 @@ function HeroQuestMap() {
 
   // Map hotspot by icon ID for reveal logic
   const hotspotByIconId = useMemo(() => {
-  const map = new Map<number, MapHotSpot>();
-  MAP_HOT_SPOTS.forEach(h => map.set(h.mapIcon.id, h));
-  return map;
-}, []);
+    const map = new Map<number, MapHotSpot>();
+    questData.hotspots.forEach((h) => map.set(h.mapIcon.id, h));
+    return map;
+  }, [questData.hotspots]);
 
   const handleIconClick = (icon: MapIcon) => {
     const hs = hotspotByIconId.get(icon.id);
-     if (hs?.openPanelOnClick) setSelectedHotspotId(hs.id);
-     updateVisibility(icon);
+    if (hs?.openPanelOnClick) setSelectedHotspotId(hs.id);
+    updateVisibility(icon);
   };
 
-  
+
   const cells = [];
   for (let row = 0; row < ROWS; row++) {
     for (let col = 0; col < COLS; col++) {

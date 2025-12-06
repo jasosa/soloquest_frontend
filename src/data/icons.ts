@@ -1,5 +1,6 @@
 import type { IconType, MapIcon} from "../types/mapIcon";
 import { MAP_HOT_SPOTS } from "./mapHotSpots";
+import { buildIconsFromHotspots } from "./buildIcons";
 
 // const ICONS: MapIcon[] = [
 //   { id: 1, row: 9, col: 12, type: "eye", visible: true, openPanelOnClick: true, clickable: true},
@@ -13,13 +14,7 @@ import { MAP_HOT_SPOTS } from "./mapHotSpots";
 //   { id: 9, row: 4, col: 2, widthCells: 2, heightCells: 2, type: "monster", visible: true, openPanelOnClick: true, imageUrl: "./icons/FH_2x2.png" }, // example 2x2 tile
 // ];
 
-const ICONS: MapIcon[] = MAP_HOT_SPOTS.flatMap((spot) => {
-  const reveals = spot.revealedIcons ?? [];
-  if (reveals.length) {
-    spot.mapIcon.revealOnClickIds = reveals.map((r) => r.id);
-  }
-  return [spot.mapIcon, ...reveals];
-});
+const ICONS: MapIcon[] = buildIconsFromHotspots(MAP_HOT_SPOTS);
 
 const ICON_SYMBOL: Record<IconType, string> = {
   start: "🧭",
