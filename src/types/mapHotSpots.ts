@@ -1,4 +1,5 @@
 import type { MapIcon } from "./mapIcon";
+import type { QuestAction } from "./questActions";
 
 interface MapHotSpot {
     id: number;
@@ -15,6 +16,7 @@ interface QuestEntry {
     description: string;
     imageUrl?: string;
     subEntries?: QuestEntry[];
+    actions?: QuestAction[];
 }
 
 export type { MapHotSpot, QuestEntry };

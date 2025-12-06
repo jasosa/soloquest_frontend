@@ -1,4 +1,3 @@
-import { useState, useCallback, useEffect } from "react";
 import type { MapIcon } from "../types/mapIcon";
 
 export type VisibilityMap = Record<number, boolean>;
@@ -8,37 +7,4 @@ export function createInitialVisibilityMap(icons: MapIcon[]): VisibilityMap {
     acc[icon.id] = icon.visible !== false;
     return acc;
   }, {});
-}
-
-export function updateVisibilityMap(current: VisibilityMap, icon: MapIcon): VisibilityMap {
-  // Only revealing icons for now; extend here if you add hide rules.
-  if (!icon.revealOnClickIds?.length) {
-    return current;
-  }
-
-  const next = { ...current };
-  icon.revealOnClickIds.forEach((id) => {
-    next[id] = true;
-  });
-  return next;
-}
-
-export function useIconVisibility(icons: MapIcon[]) {
-  const [visibleById, setVisibleById] = useState<VisibilityMap>(() => createInitialVisibilityMap(icons));
-
-  // Reset visibility whenever the icon list changes (e.g., when swapping quests).
-  useEffect(() => {
-    setVisibleById(createInitialVisibilityMap(icons));
-  }, [icons]);
-
-  const updateVisibility = useCallback((icon: MapIcon) => {
-    setVisibleById((prev) => updateVisibilityMap(prev, icon));
-  }, []);
-
-  const isVisible = useCallback(
-    (iconId: number) => !!visibleById[iconId],
-    [visibleById]
-  );
-
-  return { visibleById, isVisible, updateVisibility };
 }

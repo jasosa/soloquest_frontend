@@ -23,7 +23,7 @@ describe("buildIconsFromHotspots", () => {
     const hotspotIcon = result.find((icon) => icon.id === 1);
     const revealedIcon = result.find((icon) => icon.id === 2);
 
-    expect(hotspotIcon?.revealOnClickIds).toEqual([2]);
+    expect(hotspotIcon?.revealOnClickIds).toBeUndefined();
     expect(revealedIcon).toBeDefined();
   });
 

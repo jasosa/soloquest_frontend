@@ -1,7 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import "./App.css";
 import type { MapIcon } from "./types/mapIcon";
-import { useIconVisibility } from "./utils/iconVisibility";
 import { IconCell } from "./components/iconCell";
 import { IconPanel } from "./components/iconPanel";
 import { OverlayIconCell } from "./components/overlayIconCell";
@@ -10,6 +9,7 @@ import { buildQuestData, type QuestData } from "./data/buildQuestData";
 import { MAP_HOT_SPOTS } from "./data/mapHotSpots";
 import { QUEST_ENTRIES } from "./data/questEntries";
 import { ICON_SYMBOL } from "./data/icons";
+import { useQuestEngine } from "./utils/questEngine";
 
 const ROWS = 19;
 const COLS = 26;
@@ -29,11 +29,14 @@ function App() {
 
 
 function HeroQuestMap({ questData }: { questData: QuestData }) {
-  const [selectedHotspotId, setSelectedHotspotId] = useState<number | null>(null);
-  const { isVisible, updateVisibility } = useIconVisibility(questData.icons);
+  const [panelHotspot, setPanelHotspot] = useState<MapHotSpot | null>(null);
+  const { isVisible, runQuestEntry, selectedEntryId } = useQuestEngine(
+    questData.icons,
+    questData.questEntriesById
+  );
 
   useEffect(() => {
-    setSelectedHotspotId(null);
+    setPanelHotspot(null);
   }, [questData.icons]);
 
   const { gridItems, overlayItems } = useMemo(() => {
@@ -49,14 +52,7 @@ function HeroQuestMap({ questData }: { questData: QuestData }) {
     );
   }, [questData.icons]);
 
-  const selectedHotspot = useMemo(
-    () => questData.hotspots.find((hs) => hs.id === selectedHotspotId) ?? null,
-    [selectedHotspotId, questData.hotspots]
-  );
-
-  const selectedQuestEntry = selectedHotspot
-    ? questData.questEntriesById[selectedHotspot.questEntryId]
-    : null;
+  const selectedQuestEntry = selectedEntryId ? questData.questEntriesById[selectedEntryId] : null;
 
   // Fast lookup for grid cells
   const iconByPosition = useMemo(() => {
@@ -76,8 +72,9 @@ function HeroQuestMap({ questData }: { questData: QuestData }) {
 
   const handleIconClick = (icon: MapIcon) => {
     const hs = hotspotByIconId.get(icon.id);
-    if (hs?.openPanelOnClick) setSelectedHotspotId(hs.id);
-    updateVisibility(icon);
+    if (!hs || hs.clickable === false) return;
+    setPanelHotspot(hs);
+    runQuestEntry(hs.questEntryId);
   };
 
 
@@ -98,7 +95,7 @@ function HeroQuestMap({ questData }: { questData: QuestData }) {
           isVisible={visibleIcon}
           isClickable={clickableHotSpot}
           symbol={symbol}          
-          onClick={() => icon && visibleIcon && handleIconClick(icon)}
+          onClick={() => icon && visibleIcon && clickableHotSpot && handleIconClick(icon)}
         />
       );
     }     
@@ -134,21 +131,21 @@ function HeroQuestMap({ questData }: { questData: QuestData }) {
                 isVisible={visibleIcon}
                 isClickable={isClickable}
                 symbol={symbol}
-                onClick={() => isClickable && handleIconClick(icon)}
+                onClick={() => isClickable && visibleIcon && handleIconClick(icon)}
               />
             );
           })}
         </div>
       </div>
 
-        {selectedQuestEntry && selectedHotspot && (
+        {selectedQuestEntry && panelHotspot && (
         <IconPanel
           title={selectedQuestEntry.title}
           description={selectedQuestEntry.description}
           imageUrl={selectedQuestEntry.imageUrl}
-          row={selectedHotspot.mapIcon.row}
-          col={selectedHotspot.mapIcon.col}
-          onClose={() => setSelectedHotspotId(null)}
+          row={panelHotspot.mapIcon.row}
+          col={panelHotspot.mapIcon.col}
+          onClose={() => setPanelHotspot(null)}
         />
       )}
     </>
