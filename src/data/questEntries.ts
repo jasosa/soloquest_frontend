@@ -15,7 +15,7 @@ export const QUEST_ENTRIES: QuestEntry[] = [
     imageUrl: "/images/nb_2.JPG",
     actions: [
       { type: "openPanel" },
-      { type: "reveal", iconIds: [4, 5, 6] },
+      { type: "reveal", iconIds: [21, 22, 23, 24] },
     ],
   },
   // ...
