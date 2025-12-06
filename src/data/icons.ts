@@ -2,7 +2,7 @@ import type { IconType} from "../types/mapIcon";
 import type { MapIcon } from "../types/mapIcon";
 
 const ICONS: MapIcon[] = [
-  { id: 1, row: 9, col: 12, type: "eye", visible: true, openPanelOnClick: true, clickable: false},
+  { id: 1, row: 9, col: 12, type: "eye", visible: true, openPanelOnClick: true, clickable: true},
   { id: 2, row: 9, col: 9, type: "eye",  visible: true, openPanelOnClick: true, revealOnClickIds: [4,5,6] },  
   { id: 3, row: 8, col: 3, type: "eye",  visible: true, openPanelOnClick: true},
   { id: 4, row: 9, col: 1, type: "bloque", visible: false, openPanelOnClick: false, imageUrl:"./icons/Bloque.png"},

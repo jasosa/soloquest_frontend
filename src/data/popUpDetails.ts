@@ -9,12 +9,12 @@ export const POPUP_DETAILS: Record<number, PopUpDetails> = {
   1: {
     title: "Starting Room",
     content: "Heroes begin here.",
-    imageUrl: "../images/nb_1.jpg", // or omit if none
+    imageUrl: "./images/nb_1.JPG", // or omit if none
   },
   2: {
     title: "New Corridor",
     content: "A newly revealed corridor. Proceed with caution.",
-    imageUrl: "../images/nb_2.jpg",
+    imageUrl: "./images/nb_2.JPG",
   },
   3: {
     title: "Secret Door",
