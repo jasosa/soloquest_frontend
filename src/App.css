@@ -95,6 +95,13 @@
   pointer-events: none;           /* click handled by parent cell */
 }
 
+.hq-cell-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;            /* keep aspect ratio while fitting cell */
+  display: block;
+}
+
 /* Modal popup */
 .hq-modal-backdrop {
   position: fixed;
@@ -133,3 +140,40 @@
   border-radius: 6px;
   cursor: pointer;
 }
+
+.hq-overlay {
+  position: absolute;
+  top: var(--grid-pad-y);
+  left: var(--grid-pad-x);
+  right: var(--grid-pad-x);
+  bottom: var(--grid-pad-y);
+  pointer-events: none;
+}
+
+.hq-multi-icon {
+  position: absolute;
+  pointer-events: auto; /* so clicks work when clickable */
+}
+.hq-multi-icon--clickable { cursor: pointer; }
+.hq-multi-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain; /* or cover */
+  display: block;
+}
+.hq-multi-icon__symbol {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+.hq-overlay-icon {
+  position: absolute;
+  pointer-events: auto;
+}
+.hq-overlay-icon--clickable { cursor: pointer; }
+.hq-overlay-icon img { width: 100%; height: 100%; object-fit: contain; display: block; }
+.hq-overlay-icon__symbol { display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; }
+

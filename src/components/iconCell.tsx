@@ -1,23 +1,28 @@
-import React from "react";
-import type { MapIcon } from "../types/icon";
+import type { MapIcon } from "../types/mapIcon";
 
 type IconCellProps = {
   icon?: MapIcon | null;
   isVisible: boolean;
   symbol?: string;
+  isClickable: boolean;
   onClick?: () => void;
 };
 
-export function IconCell({ icon, isVisible, symbol, onClick }: IconCellProps) {
-  const clickable = !!icon && isVisible;
+export function IconCell({ icon, isVisible, isClickable, symbol, onClick }: IconCellProps) {
+
+  const showImage = !!icon?.imageUrl && isVisible;
+  const showSymbol = !!symbol && isVisible && !showImage;
 
   return (
-    <div
-      className={`hq-cell ${clickable ? "hq-cell--has-icon" : ""}`}
-      onClick={clickable ? onClick : undefined}
+     <div
+      className={`hq-cell ${isVisible ? "hq-cell--has-icon" : ""} ${isClickable ? "hq-cell--clickable" : ""}`}
+      onClick={isClickable ? onClick : undefined}
     >
-      {clickable && symbol && (
-        <span className="hq-cell-icon" title={icon!.label} aria-label={icon!.label}>
+      {showImage && (
+        <img className="hq-cell-image" src={icon!.imageUrl} />
+      )}
+      {showSymbol && (
+        <span className="hq-cell-icon" >
           {symbol}
         </span>
       )}

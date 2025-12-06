@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import type { MapIcon } from "../types/icon";
+import type { MapIcon } from "../types/mapIcon";
 
 export type VisibilityMap = Record<number, boolean>;
 

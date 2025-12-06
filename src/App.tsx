@@ -1,10 +1,12 @@
 import React, { useMemo, useState } from "react";
 import "./App.css";
-import type { MapIcon } from "./types/icon";
+import type { MapIcon } from "./types/mapIcon";
 import { ICONS, ICON_SYMBOL } from "./data/icons";
+import { POPUP_DETAILS } from "./data/popUpDetails";
 import { useIconVisibility } from "./utils/iconVisibility";
 import { IconCell } from "./components/iconCell";
 import { IconPanel } from "./components/iconPanel";
+import { OverlayIconCell } from "./components/overlayIconCell";
 
 const ROWS = 19;
 const COLS = 26;
@@ -20,17 +22,36 @@ function App() {
   );
 }
 
+
 function HeroQuestMap() {
   const [selectedIcon, setSelectedIcon] = useState<MapIcon | null>(null);
   const { isVisible, updateVisibility } = useIconVisibility(ICONS);
 
+  // Split data: simple on-cell icons vs. overlay icons (offsets or multi-cell)
+  const gridItems = useMemo(
+    () =>
+      ICONS.filter(
+        (it) =>
+          (it.widthCells ?? 1) === 1 &&
+          (it.heightCells ?? 1) === 1 &&
+          (it.rowOffset ?? 0) === 0 &&
+          (it.colOffset ?? 0) === 0
+      ),
+    []
+  );
+  const overlayItems = useMemo(
+    () => ICONS.filter((it) => !gridItems.includes(it)),
+    [gridItems]
+  );
+
+  // Fast lookup for grid cells
   const iconByPosition = useMemo(() => {
     const map = new Map<string, MapIcon>();
-    for (const icon of ICONS) {
+    for (const icon of gridItems) {
       map.set(`${icon.row}-${icon.col}`, icon);
     }
     return map;
-  }, []);
+  }, [gridItems]);
 
   const handleIconClick = (icon: MapIcon) => {
     if (icon.openPanelOnClick == true) {
@@ -45,23 +66,27 @@ function HeroQuestMap() {
       const key = `${row}-${col}`;
       const icon = iconByPosition.get(key);
       const visible = !!icon && isVisible(icon.id);
-      const symbol = icon ? ICON_SYMBOL[icon.type] : undefined;
+      const clickable = !!icon && visible && icon.clickable !== false;
+      const symbol = icon ? ICON_SYMBOL[icon.type] : undefined;      
 
       cells.push(
         <IconCell
           key={key}
           icon={icon}
           isVisible={visible}
-          symbol={symbol}
-           onClick={() => icon && visible && handleIconClick(icon)}
+          isClickable={clickable}
+          symbol={symbol}          
+          onClick={() => icon && visible && handleIconClick(icon)}
         />
       );
-    }
+    }     
   }
 
+ 
+  const detail = selectedIcon ? POPUP_DETAILS[selectedIcon.id] : null;
   return (
     <>
-      <div className="hq-board">
+      <div className="hq-board">        
         <div
           className="hq-grid"
           style={{
@@ -71,10 +96,38 @@ function HeroQuestMap() {
         >
           {cells}
         </div>
+        
+        <div className="hq-overlay">          
+          {overlayItems.map((icon) => {
+
+            const visible = isVisible(icon.id);
+            const clickable = visible && icon.clickable !== false;
+            const symbol = ICON_SYMBOL[icon.type];
+            return (
+              <OverlayIconCell
+                key={icon.id}
+                icon={icon}
+                rows={ROWS}
+                cols={COLS}
+                isVisible={visible}
+                isClickable={clickable}
+                symbol={symbol}
+                onClick={() => clickable && handleIconClick(icon)}
+              />
+            );
+          })}
+        </div>
       </div>
 
-      {selectedIcon && (
-        <IconPanel icon={selectedIcon} onClose={() => setSelectedIcon(null)} />
+        {selectedIcon && detail && (
+        <IconPanel
+          title={detail.title}
+          description={detail.content}
+          imageUrl={detail.imageUrl}
+          row={selectedIcon.row}
+          col={selectedIcon.col}
+          onClose={() => setSelectedIcon(null)}
+        />
       )}
     </>
   );
