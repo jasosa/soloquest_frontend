@@ -2,13 +2,14 @@ import React, { useMemo, useState } from "react";
 import "./App.css";
 import type { MapIcon } from "./types/mapIcon";
 import { ICONS, ICON_SYMBOL } from "./data/icons";
-import { POPUP_DETAILS } from "./data/popUpDetails";
 import { useIconVisibility } from "./utils/iconVisibility";
 import { IconCell } from "./components/iconCell";
 import { IconPanel } from "./components/iconPanel";
 import { OverlayIconCell } from "./components/overlayIconCell";
 import type { MapHotSpot } from "./types/mapHotSpots";
 import { MAP_HOT_SPOTS } from "./data/mapHotSpots";
+import { QUEST_ENTRY_BY_ID } from "./data/questEntries";
+
 
 const ROWS = 19;
 const COLS = 26;
@@ -45,11 +46,16 @@ function HeroQuestMap() {
     () => ICONS.filter((it) => !gridItems.includes(it)),
     [gridItems]
   );
-
+  
     const selectedHotspot = useMemo(
     () => MAP_HOT_SPOTS.find((hs) => hs.id === selectedHotspotId) ?? null,
     [selectedHotspotId]
   );
+
+  const selectedQuestEntry = selectedHotspot
+    ? QUEST_ENTRY_BY_ID[selectedHotspot.questEntryId]
+    : null;
+
 
   // Fast lookup for grid cells
   const iconByPosition = useMemo(() => {
@@ -82,7 +88,6 @@ function HeroQuestMap() {
       const hotSpot = icon ? hotspotByIconId.get(icon.id) : null;
       const clickableHotSpot = !!hotSpot && hotSpot.clickable !== false; 
       const visibleIcon = !!icon && isVisible(icon.id);
-      //const clickable = !!icon && visible && icon.clickable !== false;
       const symbol = icon ? ICON_SYMBOL[icon.type] : undefined;      
 
       cells.push(
@@ -98,9 +103,6 @@ function HeroQuestMap() {
     }     
   }
 
- 
-  const detail = selectedHotspotId ? POPUP_DETAILS[selectedHotspotId] : null;
-  const selectedIcon = selectedHotspot?.mapIcon;
   return (
     <>
       <div className="hq-board">        
@@ -138,13 +140,13 @@ function HeroQuestMap() {
         </div>
       </div>
 
-        {selectedIcon && detail && (
+        {selectedQuestEntry && selectedHotspot && (
         <IconPanel
-          title={detail.title}
-          description={detail.content}
-          imageUrl={detail.imageUrl}
-          row={selectedIcon.row}
-          col={selectedIcon.col}
+          title={selectedQuestEntry.title}
+          description={selectedQuestEntry.description}
+          imageUrl={selectedQuestEntry.imageUrl}
+          row={selectedHotspot.mapIcon.row}
+          col={selectedHotspot.mapIcon.col}
           onClose={() => setSelectedHotspotId(null)}
         />
       )}

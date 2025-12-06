@@ -6,7 +6,7 @@ interface MapHotSpot {
     clickable?: boolean;
     openPanelOnClick?: boolean;
     revealedIcons?: MapIcon[];
-    questEntry?: [number];
+    questEntryId: number
 }
 
 interface QuestEntry {
