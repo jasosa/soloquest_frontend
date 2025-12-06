@@ -7,6 +7,8 @@ import { useIconVisibility } from "./utils/iconVisibility";
 import { IconCell } from "./components/iconCell";
 import { IconPanel } from "./components/iconPanel";
 import { OverlayIconCell } from "./components/overlayIconCell";
+import type { MapHotSpot } from "./types/mapHotSpots";
+import { MAP_HOT_SPOTS } from "./data/mapHotSpots";
 
 const ROWS = 19;
 const COLS = 26;
@@ -24,7 +26,7 @@ function App() {
 
 
 function HeroQuestMap() {
-  const [selectedIcon, setSelectedIcon] = useState<MapIcon | null>(null);
+  const [selectedHotspotId, setSelectedHotspotId] = useState<number | null>(null);
   const { isVisible, updateVisibility } = useIconVisibility(ICONS);
 
   // Split data: simple on-cell icons vs. overlay icons (offsets or multi-cell)
@@ -44,6 +46,11 @@ function HeroQuestMap() {
     [gridItems]
   );
 
+    const selectedHotspot = useMemo(
+    () => MAP_HOT_SPOTS.find((hs) => hs.id === selectedHotspotId) ?? null,
+    [selectedHotspotId]
+  );
+
   // Fast lookup for grid cells
   const iconByPosition = useMemo(() => {
     const map = new Map<string, MapIcon>();
@@ -53,37 +60,47 @@ function HeroQuestMap() {
     return map;
   }, [gridItems]);
 
+  // Map hotspot by icon ID for reveal logic
+  const hotspotByIconId = useMemo(() => {
+  const map = new Map<number, MapHotSpot>();
+  MAP_HOT_SPOTS.forEach(h => map.set(h.mapIcon.id, h));
+  return map;
+}, []);
+
   const handleIconClick = (icon: MapIcon) => {
-    if (icon.openPanelOnClick == true) {
-      setSelectedIcon(icon);
-    }
+    const hs = hotspotByIconId.get(icon.id);
+     if (hs?.openPanelOnClick) setSelectedHotspotId(hs.id);
      updateVisibility(icon);
   };
 
+  
   const cells = [];
   for (let row = 0; row < ROWS; row++) {
     for (let col = 0; col < COLS; col++) {
       const key = `${row}-${col}`;
       const icon = iconByPosition.get(key);
-      const visible = !!icon && isVisible(icon.id);
-      const clickable = !!icon && visible && icon.clickable !== false;
+      const hotSpot = icon ? hotspotByIconId.get(icon.id) : null;
+      const clickableHotSpot = !!hotSpot && hotSpot.clickable !== false; 
+      const visibleIcon = !!icon && isVisible(icon.id);
+      //const clickable = !!icon && visible && icon.clickable !== false;
       const symbol = icon ? ICON_SYMBOL[icon.type] : undefined;      
 
       cells.push(
         <IconCell
           key={key}
           icon={icon}
-          isVisible={visible}
-          isClickable={clickable}
+          isVisible={visibleIcon}
+          isClickable={clickableHotSpot}
           symbol={symbol}          
-          onClick={() => icon && visible && handleIconClick(icon)}
+          onClick={() => icon && visibleIcon && handleIconClick(icon)}
         />
       );
     }     
   }
 
  
-  const detail = selectedIcon ? POPUP_DETAILS[selectedIcon.id] : null;
+  const detail = selectedHotspotId ? POPUP_DETAILS[selectedHotspotId] : null;
+  const selectedIcon = selectedHotspot?.mapIcon;
   return (
     <>
       <div className="hq-board">        
@@ -100,8 +117,10 @@ function HeroQuestMap() {
         <div className="hq-overlay">          
           {overlayItems.map((icon) => {
 
-            const visible = isVisible(icon.id);
-            const clickable = visible && icon.clickable !== false;
+            const hs = hotspotByIconId.get(icon.id);
+            const visibleIcon = isVisible(icon.id);
+            const isClickable = !!hs && hs.clickable !== false;
+            
             const symbol = ICON_SYMBOL[icon.type];
             return (
               <OverlayIconCell
@@ -109,10 +128,10 @@ function HeroQuestMap() {
                 icon={icon}
                 rows={ROWS}
                 cols={COLS}
-                isVisible={visible}
-                isClickable={clickable}
+                isVisible={visibleIcon}
+                isClickable={isClickable}
                 symbol={symbol}
-                onClick={() => clickable && handleIconClick(icon)}
+                onClick={() => isClickable && handleIconClick(icon)}
               />
             );
           })}
@@ -126,7 +145,7 @@ function HeroQuestMap() {
           imageUrl={detail.imageUrl}
           row={selectedIcon.row}
           col={selectedIcon.col}
-          onClose={() => setSelectedIcon(null)}
+          onClose={() => setSelectedHotspotId(null)}
         />
       )}
     </>

@@ -11,9 +11,9 @@ interface MapIcon {
   type: IconType;
   imageUrl?: string;
   visible: boolean;
-  clickable?: boolean;
+  //clickable?: boolean;
   revealOnClickIds?: number[]; // IDs of icons to reveal when clicked
-  openPanelOnClick?: boolean;
+  //openPanelOnClick?: boolean;
 }
 
 export type { IconType, MapIcon };
