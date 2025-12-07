@@ -12,12 +12,16 @@ import { useQuestEngine } from "./utils/questEngine";
 import { MAP_HOT_SPOTS } from "./data/mapHotSpots";
 import { QUEST_ENTRIES } from "./data/questEntries";
 import { ICON_SYMBOL } from "./data/mapIcons";
+import { ACTIVE_QUEST } from "./data/quest";
 
 const ROWS = 19;
 const COLS = 26;
 
 function App() {
-  const questData = useMemo(() => buildQuestData(MAP_HOT_SPOTS, QUEST_ENTRIES), []);
+  const questData = useMemo(
+    () => buildQuestData(ACTIVE_QUEST, MAP_HOT_SPOTS, QUEST_ENTRIES),
+    []
+  );
 
   return (
     <div className="app-root">
@@ -34,7 +38,8 @@ function HeroQuestMap({ questData }: { questData: QuestData }) {
   const [panelHotspot, setPanelHotspot] = useState<MapHotSpot | null>(null);
   const { isVisible, runQuestEntry, selectedEntryId } = useQuestEngine(
     questData.icons,
-    questData.questEntriesById
+    questData.questEntriesById,
+    questData.quest.initialEntryId
   );
 
   useEffect(() => {

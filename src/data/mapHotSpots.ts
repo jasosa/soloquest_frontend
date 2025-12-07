@@ -6,7 +6,6 @@ export const MAP_HOT_SPOTS: MapHotSpot[] = [
     mapIconId: 1,
     clickable: true,
     openPanelOnClick: true,
- 
     questEntryId: 101,
   },
   {

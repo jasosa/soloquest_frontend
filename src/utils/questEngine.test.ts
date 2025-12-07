@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { applyQuestEntry, type QuestEngineState } from "./questEngine";
+import { renderHook, waitFor } from "@testing-library/react";
+import { applyQuestEntry, type QuestEngineState, useQuestEngine } from "./questEngine";
 import type { QuestEntry } from "../types/mapHotSpots";
 import type { MapIcon } from "../types/mapIcon";
 
@@ -44,5 +45,14 @@ describe("quest engine", () => {
 
     expect(next.visibleById[2]).toBe(true);
     expect(next.selectedEntryId).toBe(100); // chained entry opened the panel
+  });
+
+  it("auto-runs the quest's initial entry when a quest starts", async () => {
+    const { result } = renderHook(() => useQuestEngine(icons, questEntriesById, 100));
+
+    await waitFor(() => {
+      expect(result.current.selectedEntryId).toBe(100);
+      expect(result.current.visibleById[2]).toBe(true);
+    });
   });
 });

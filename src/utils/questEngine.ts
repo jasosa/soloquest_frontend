@@ -94,12 +94,21 @@ export function applyQuestEntry(
   return runEntry(entryId, questEntriesById, state, new Set());
 }
 
-export function useQuestEngine(icons: MapIcon[], questEntriesById: Record<number, QuestEntry>) {
+export function useQuestEngine(
+  icons: MapIcon[],
+  questEntriesById: Record<number, QuestEntry>,
+  initialEntryId?: number
+) {
   const [state, setState] = useState<QuestEngineState>(() => initialState(icons));
 
   useEffect(() => {
     setState(initialState(icons));
   }, [icons]);
+
+  useEffect(() => {
+    if (!initialEntryId) return;
+    setState((prev) => applyQuestEntry(initialEntryId, questEntriesById, prev));
+  }, [initialEntryId, questEntriesById, icons]);
 
   const runQuestEntry = useCallback(
     (entryId: number | null | undefined) => {

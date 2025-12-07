@@ -21,12 +21,13 @@ const hotspot = (overrides: Partial<MapHotSpot> = {}): MapHotSpot => ({
 });
 
 const questEntries: QuestEntry[] = [{ id: 1, title: "Test Quest", description: "Desc", imageUrl: "img" }];
+const quest = { initialEntryId: 1 };
 
 describe("buildQuestData", () => {
   it("clones hotspots, icons, and builds helper maps", () => {
     const hotspots = [hotspot()];
 
-    const result = buildQuestData(hotspots, questEntries);
+    const result = buildQuestData(quest, hotspots, questEntries);
 
     expect(result.hotspots).toHaveLength(1);
     expect(result.hotspots[0]).not.toBe(hotspots[0]);
@@ -37,11 +38,12 @@ describe("buildQuestData", () => {
 
     expect(result.questEntriesById[1]).toEqual(questEntries[0]);
     expect(result.hotspotByIconId.get(10)?.id).toBe(1);
+    expect(result.quest.initialEntryId).toBe(1);
   });
 
   it("leaves the source hotspot unmutated when result is changed", () => {
     const hs = hotspot();
-    const result = buildQuestData([hs], questEntries);
+    const result = buildQuestData(quest, [hs], questEntries);
 
     // mutate result hotspot to verify the original is unchanged
     result.hotspots[0].clickable = false;
@@ -49,7 +51,7 @@ describe("buildQuestData", () => {
   });
 
   it("clones icons so mutations do not leak back to source data", () => {
-    const result = buildQuestData([hotspot()], questEntries);
+    const result = buildQuestData(quest, [hotspot()], questEntries);
 
     result.icons[0].row = 99;
     expect(SOURCE_ICONS[0].row).toBe(0);
