@@ -35,27 +35,17 @@ function App() {
 
 
 function HeroQuestMap({ questData }: { questData: QuestData }) {
+  const [showIntro, setShowIntro] = useState(true);
+  const [questStarted, setQuestStarted] = useState(false);
   const [panelHotspot, setPanelHotspot] = useState<MapHotSpot | null>(null);
   const { isVisible, runQuestEntry, selectedEntryId } = useQuestEngine(
     questData.icons,
-    questData.questEntriesById,
-    questData.quest.initialEntryId
+    questData.questEntriesById
   );
 
   useEffect(() => {
     setPanelHotspot(null);
   }, [questData.icons]);
-
-  useEffect(()=> {
-    const initialEntryId = questData.quest.initialEntryId;
-    if (!initialEntryId) return;
-
-    // Find a hotspot tied to the initial entry to anchor the panel
-    const initialHotspot = questData.hotspots.find((hs) => hs.questEntryId === initialEntryId);
-    if (initialHotspot) {
-          setPanelHotspot((prev) => prev ?? initialHotspot);
-    }
-  }, [questData.hotspots, questData.quest.initialEntryId]);
 
   const { gridItems, overlayItems } = useMemo(() => {
     return questData.icons.reduce(
@@ -94,6 +84,21 @@ function HeroQuestMap({ questData }: { questData: QuestData }) {
     return map;
   }, [questData.icons]);
 
+  const initialHotspot = useMemo(
+    () => questData.hotspots.find((hs) => hs.questEntryId === questData.quest.initialEntryId) ?? null,
+    [questData.hotspots, questData.quest.initialEntryId]
+  );
+
+  const handleStartQuest = () => {
+    if (questStarted) return;
+    setQuestStarted(true);
+    setShowIntro(false);
+    runQuestEntry(questData.quest.initialEntryId);
+    if (initialHotspot) {
+      setPanelHotspot(initialHotspot);
+    }
+  };
+
   const handleIconClick = (icon: MapIcon) => {
     const hs = hotspotByIconId.get(icon.id);
     if (!hs || hs.clickable === false) return;
@@ -127,6 +132,24 @@ function HeroQuestMap({ questData }: { questData: QuestData }) {
 
   return (
     <>
+    {showIntro && (
+      <div className="quest-intro">
+        <div className="quest-intro__card">
+          <p className="quest-intro__eyebrow">{questData.quest.number}</p>
+          <h2>{questData.quest.name}</h2>
+          <p className="quest-intro__body">{questData.quest.intro}</p>
+          <div className="quest-intro__actions">
+            <button onClick={() => setShowIntro(false)}>Back</button>
+            <button className="primary" onClick={handleStartQuest}>Start Quest</button>
+          </div>
+        </div>
+      </div>
+    )}
+      <div className="quest-controls">
+        <button type="button" onClick={handleStartQuest} disabled={questStarted}>
+          {questStarted ? "Quest Started" : "Start Quest"}
+        </button>
+      </div>
       <div className="hq-board">        
         <div
           className="hq-grid"
