@@ -46,6 +46,17 @@ function HeroQuestMap({ questData }: { questData: QuestData }) {
     setPanelHotspot(null);
   }, [questData.icons]);
 
+  useEffect(()=> {
+    const initialEntryId = questData.quest.initialEntryId;
+    if (!initialEntryId) return;
+
+    // Find a hotspot tied to the initial entry to anchor the panel
+    const initialHotspot = questData.hotspots.find((hs) => hs.questEntryId === initialEntryId);
+    if (initialHotspot) {
+          setPanelHotspot((prev) => prev ?? initialHotspot);
+    }
+  }, [questData.hotspots, questData.quest.initialEntryId]);
+
   const { gridItems, overlayItems } = useMemo(() => {
     return questData.icons.reduce(
       (buckets, icon) => {

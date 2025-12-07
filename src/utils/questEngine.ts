@@ -107,6 +107,7 @@ export function useQuestEngine(
 
   useEffect(() => {
     if (!initialEntryId) return;
+    console.log("initial", initialEntryId, questEntriesById[initialEntryId]);
     setState((prev) => applyQuestEntry(initialEntryId, questEntriesById, prev));
   }, [initialEntryId, questEntriesById, icons]);
 
