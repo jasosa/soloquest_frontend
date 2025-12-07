@@ -11,7 +11,6 @@ import { buildQuestData, type QuestData } from "./data/buildQuestData";
 import { useQuestEngine } from "./utils/questEngine";
 import { MAP_HOT_SPOTS } from "./data/mapHotSpots";
 import { QUEST_ENTRIES } from "./data/questEntries";
-import { ICON_SYMBOL } from "./data/mapIcons";
 import { ACTIVE_QUEST } from "./data/quest";
 
 const ROWS = 19;
@@ -115,7 +114,6 @@ function HeroQuestMap({ questData }: { questData: QuestData }) {
       const hotSpot = icon ? hotspotByIconId.get(icon.id) : null;
       const clickableHotSpot = !!hotSpot && hotSpot.clickable !== false; 
       const visibleIcon = !!icon && isVisible(icon.id);
-      const symbol = icon ? ICON_SYMBOL[icon.type] : undefined;      
 
       cells.push(
         <IconCell
@@ -123,7 +121,6 @@ function HeroQuestMap({ questData }: { questData: QuestData }) {
           icon={icon}
           isVisible={visibleIcon}
           isClickable={clickableHotSpot}
-          symbol={symbol}          
           onClick={() => icon && visibleIcon && clickableHotSpot && handleIconClick(icon)}
         />
       );
@@ -135,7 +132,6 @@ function HeroQuestMap({ questData }: { questData: QuestData }) {
     {showIntro && (
       <div className="quest-intro">
         <div className="quest-intro__card">
-          <p className="quest-intro__eyebrow">{questData.quest.number}</p>
           <h2>{questData.quest.name}</h2>
           <p className="quest-intro__body">{questData.quest.intro}</p>
           <div className="quest-intro__actions">
@@ -168,7 +164,6 @@ function HeroQuestMap({ questData }: { questData: QuestData }) {
             const visibleIcon = isVisible(icon.id);
             const isClickable = !!hs && hs.clickable !== false;
             
-            const symbol = ICON_SYMBOL[icon.type];
             return (
               <OverlayIconCell
                 key={icon.id}
@@ -177,7 +172,6 @@ function HeroQuestMap({ questData }: { questData: QuestData }) {
                 cols={COLS}
                 isVisible={visibleIcon}
                 isClickable={isClickable}
-                symbol={symbol}
                 onClick={() => isClickable && visibleIcon && handleIconClick(icon)}
               />
             );

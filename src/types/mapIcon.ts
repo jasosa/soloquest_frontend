@@ -1,4 +1,4 @@
-type IconType = "start" | "monster" | "door" | "treasure" | "quest" | "eye" | "trap" | "bloque";
+type IconType = "start" | "stairs" | "door" | "cupboard" | "quest" | "eye" | "trap" | "wall" | "fireplace";
 
 interface MapIcon {
   id: number;

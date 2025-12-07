@@ -6,7 +6,10 @@ export const QUEST_ENTRIES: QuestEntry[] = [
     title: "Starting Room",
     description: "...",
     imageUrl: "/images/nb_1.JPG",
-    actions: [{ type: "openPanel" }],
+    actions: [
+      { type: "openPanel" },
+      { type: "reveal", iconIds: [11,12, 13, 14] },
+    ],
   },
   {
     id: 102,

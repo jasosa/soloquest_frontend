@@ -1,4 +1,3 @@
-import React from "react";
 import type { MapIcon } from "../types/mapIcon";
 
 type OverlayIconCellProps = {
