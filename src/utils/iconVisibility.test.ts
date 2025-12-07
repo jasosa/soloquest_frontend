@@ -1,5 +1,4 @@
 import { describe, expect, it } from "vitest";
-import { describe, expect, it } from "vitest";
 import { createInitialVisibilityMap, type VisibilityMap } from "./iconVisibility";
 import type { MapIcon } from "../types/mapIcon";
 

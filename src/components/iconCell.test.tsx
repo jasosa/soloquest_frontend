@@ -1,6 +1,6 @@
-import React from "react";
-import { describe, expect, it, vi } from "vitest";
+ import { describe, expect, it, vi } from "vitest";
 import { renderToString } from "react-dom/server";
+import { render, screen } from "@testing-library/react";
 import { IconCell } from "./iconCell";
 import type { MapIcon } from "../types/mapIcon";
 
@@ -42,5 +42,18 @@ describe("IconCell", () => {
 
     expect(html).toContain("hq-cell--clickable");
     expect(onClick).not.toHaveBeenCalled(); // renderToString won't invoke, just ensure handler accepted
+  });
+
+  it("applies rotationDeg to image icons", () => {
+    render(
+      <IconCell
+        icon={{ ...baseIcon, imageUrl: "/foo.png", rotationDeg: 90 }}
+        isVisible
+        isClickable={false}
+        symbol={undefined}
+      />
+    );
+    const img = screen.getByRole("img");
+    expect(img).toHaveStyle({ transform: "rotate(90deg)" });
   });
 });
