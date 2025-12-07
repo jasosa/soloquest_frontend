@@ -10,7 +10,6 @@
 }
 
 
-
 .container {
   position: relative;
   text-align: center;
@@ -41,8 +40,8 @@
 
 .hq-board {
   --board-size: min(100vw - 32px, 2480px); /* loosen cap so board can grow wider */
-  --grid-pad-x: calc(100% / 26);     /* tweak this to align with left/right border thickness */
-  --grid-pad-y: calc(100% / 19);     /* tweak this to align with top/bottom border thickness */
+  --grid-pad-x: 0;     /* tweak this to align with left/right border thickness */
+  --grid-pad-y: 0;     /* tweak this to align with top/bottom border thickness */
   --cell-size: calc(var(--board-size) / 26);
   --icon-font: calc(var(--cell-size) * 0.9); /* scale symbols with board */
   position: relative;

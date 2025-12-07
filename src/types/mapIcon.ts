@@ -11,6 +11,7 @@ interface MapIcon {
   type: IconType;
   imageUrl?: string;
   visible: boolean;
+  rotationDeg?: number; // optional rotation (e.g. 90, 180) applied to the rendered icon
 }
 
 export type { IconType, MapIcon };

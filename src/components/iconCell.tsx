@@ -9,7 +9,8 @@ type IconCellProps = {
 };
 
 export function IconCell({ icon, isVisible, isClickable, symbol, onClick }: IconCellProps) {
-
+  const rotation = icon?.rotationDeg ?? 0;
+  const rotationStyle = rotation ? { transform: `rotate(${rotation}deg)`, transformOrigin: "50% 50%" } : undefined;
   const showImage = !!icon?.imageUrl && isVisible;
   const showSymbol = !!symbol && isVisible && !showImage;
 
@@ -19,10 +20,11 @@ export function IconCell({ icon, isVisible, isClickable, symbol, onClick }: Icon
       onClick={isClickable ? onClick : undefined}
     >
       {showImage && (
-        <img className="hq-cell-image" src={icon!.imageUrl} />
+        <img className="hq-cell-image" src={icon!.imageUrl} style={rotationStyle}
+        />
       )}
       {showSymbol && (
-        <span className="hq-cell-icon" >
+        <span className="hq-cell-icon" style={rotationStyle} >
           {symbol}
         </span>
       )}
