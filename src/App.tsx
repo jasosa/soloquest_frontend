@@ -1,15 +1,17 @@
 import React, { useEffect, useMemo, useState } from "react";
 import "./App.css";
-import type { MapIcon } from "./types/mapIcon";
 import { IconCell } from "./components/iconCell";
 import { IconPanel } from "./components/iconPanel";
 import { OverlayIconCell } from "./components/overlayIconCell";
+
+import type { MapIcon } from "./types/mapIcon";
 import type { MapHotSpot } from "./types/mapHotSpots";
+
 import { buildQuestData, type QuestData } from "./data/buildQuestData";
+import { useQuestEngine } from "./utils/questEngine";
 import { MAP_HOT_SPOTS } from "./data/mapHotSpots";
 import { QUEST_ENTRIES } from "./data/questEntries";
-import { ICON_SYMBOL } from "./data/icons";
-import { useQuestEngine } from "./utils/questEngine";
+import { ICON_SYMBOL } from "./data/mapIcons";
 
 const ROWS = 19;
 const COLS = 26;
@@ -66,9 +68,15 @@ function HeroQuestMap({ questData }: { questData: QuestData }) {
   // Map hotspot by icon ID for reveal logic
   const hotspotByIconId = useMemo(() => {
     const map = new Map<number, MapHotSpot>();
-    questData.hotspots.forEach((h) => map.set(h.mapIcon.id, h));
+    questData.hotspots.forEach((h) => map.set(h.mapIconId, h));
     return map;
   }, [questData.hotspots]);
+
+  const iconById = useMemo(() => {
+    const map = new Map<number, MapIcon>();
+    questData.icons.forEach((icon) => map.set(icon.id, icon));
+    return map;
+  }, [questData.icons]);
 
   const handleIconClick = (icon: MapIcon) => {
     const hs = hotspotByIconId.get(icon.id);
@@ -143,8 +151,8 @@ function HeroQuestMap({ questData }: { questData: QuestData }) {
           title={selectedQuestEntry.title}
           description={selectedQuestEntry.description}
           imageUrl={selectedQuestEntry.imageUrl}
-          row={panelHotspot.mapIcon.row}
-          col={panelHotspot.mapIcon.col}
+          row={iconById.get(panelHotspot.mapIconId)?.row ?? 0}
+          col={iconById.get(panelHotspot.mapIconId)?.col ?? 0}
           onClose={() => setPanelHotspot(null)}
         />
       )}

@@ -1,12 +1,10 @@
-import type { MapIcon } from "./mapIcon";
 import type { QuestAction } from "./questActions";
 
 interface MapHotSpot {
     id: number;
-    mapIcon: MapIcon;
+    mapIconId: number;
     clickable?: boolean;
     openPanelOnClick?: boolean;
-    revealedIcons?: MapIcon[];
     questEntryId: number
 }
 

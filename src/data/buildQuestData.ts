@@ -1,6 +1,6 @@
 import type { MapHotSpot, QuestEntry } from "../types/mapHotSpots";
 import type { MapIcon } from "../types/mapIcon";
-import { buildIconsFromHotspots } from "./buildIcons";
+import { MAP_ICONS } from "./mapIcons";
 
 export type QuestData = {
   hotspots: MapHotSpot[];
@@ -10,13 +10,10 @@ export type QuestData = {
 };
 
 export function buildQuestData(hotspots: MapHotSpot[], questEntries: QuestEntry[]): QuestData {
-    const hotspotClones = hotspots.map((hs) => ({
-        ...hs,
-        mapIcon: { ...hs.mapIcon },
-        revealedIcons: hs.revealedIcons?.map((icon) => ({ ...icon })),
-    }));
+    const hotspotClones = hotspots.map((hs) => ({ ...hs}));
 
-    const icons = buildIconsFromHotspots(hotspotClones);
+     // clone icons from the centralized list so they’re not mutated
+    const icons = MAP_ICONS.map((icon) => ({ ...icon }));
 
     const questEntriesById = questEntries.reduce<Record<number, QuestEntry>>((acc, entry) => {
         acc[entry.id] = entry;
@@ -24,7 +21,7 @@ export function buildQuestData(hotspots: MapHotSpot[], questEntries: QuestEntry[
     }, {});
 
     const hotspotByIconId = hotspotClones.reduce<Map<number, MapHotSpot>>((acc, hs) => {
-        acc.set(hs.mapIcon.id, hs);
+        acc.set(hs.mapIconId, hs);
         return acc;
     }, new Map());
 
