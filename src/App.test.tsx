@@ -7,7 +7,7 @@ describe("quest start flow", () => {
     render(<App />);
 
     expect(screen.getByText(/Online Quest 0 - New Beginnings/i)).toBeInTheDocument();
-    expect(screen.getByText(/Heed well my words/i)).toBeInTheDocument();
+    expect(screen.getByText(/Prestad atención mis palabras/i)).toBeInTheDocument();
 
     const startButtons = screen.getAllByRole("button", { name: /start quest/i });
     fireEvent.click(startButtons[0]);

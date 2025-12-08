@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import "./App.css";
 import { IconCell } from "./components/iconCell";
 import { IconPanel } from "./components/iconPanel";
@@ -15,6 +15,7 @@ import { ACTIVE_QUEST } from "./data/quest";
 
 const ROWS = 19;
 const COLS = 26;
+const showDebug = import.meta.env.VITE_DEBUG_PANEL === "true";
 
 function App() {
   const questData = useMemo(
@@ -176,11 +177,18 @@ function HeroQuestMap({ questData }: { questData: QuestData }) {
 
         {selectedQuestEntry && panelHotspot && (
         <IconPanel
+          showDebugInfo={showDebug}
           title={selectedQuestEntry.title}
           description={selectedQuestEntry.description}
           imageUrl={selectedQuestEntry.imageUrl}
           row={iconById.get(panelHotspot.mapIconId)?.row ?? 0}
           col={iconById.get(panelHotspot.mapIconId)?.col ?? 0}
+          subEntries={selectedQuestEntry.subEntries}
+           onSelectSubEntry={(id) => {
+            //setPanelHotspot(null); // optional: close current panel
+            runQuestEntry(id);
+            setPanelHotspot(hotspotByIconId.get(iconById.get(panelHotspot.mapIconId)?.id ?? 0) ?? null);
+          }}
           onClose={() => setPanelHotspot(null)}
         />
       )}

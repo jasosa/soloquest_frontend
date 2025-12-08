@@ -201,3 +201,17 @@
 .quest-intro__body { line-height: 1.6; margin: 12px 0 24px; }
 .quest-intro__actions { display: flex; gap: 12px; justify-content: flex-end; }
 .quest-intro__actions .primary { background: #0ea5e9; color: #0b1020; border: none; padding: 10px 16px; border-radius: 8px; font-weight: 600; }
+
+.subentry-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  align-items: center;
+  margin: 1rem 0;
+}
+
+.subentry-actions button {
+  min-width: 180px;
+  padding: 0.5rem 1rem;
+  text-align: center;
+}

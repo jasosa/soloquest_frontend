@@ -7,7 +7,7 @@ export const MAP_ICONS: MapIcon[] = [
     { id: 13, row: 8, col: 14, type: "fireplace", visible: false, widthCells: 3, heightCells: 1, rotationDeg: 90},
     { id: 14, row: 9, col: 9, rowOffset:0, colOffset:0.5, type: "door", visible: false, rotationDeg: 90 },
 
-    { id: 2, row: 9, col: 9, type: "eye", visible: true, },
+    { id: 2, row: 9, col: 5, type: "eye", visible: true, },
     { id: 21, row: 9, col: 1, type: "wall", visible: false,},
     { id: 22, row: 8, col: 9, type: "wall", visible: false,},
     { id: 23, row: 10, col: 9, type: "wall", visible: false,},

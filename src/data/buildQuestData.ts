@@ -25,11 +25,14 @@ export function buildQuestData(
     return {...icon, imageUrl};
   });
   
-
-  const questEntriesById = questEntries.reduce<Record<number, QuestEntry>>((acc, entry) => {
-    acc[entry.id] = entry;
-    return acc;
-  }, {});
+ const questEntriesById = questEntries.reduce<Record<number, QuestEntry>>((acc, entry) => {
+  const add = (e: QuestEntry) => {
+    acc[e.id] = e;
+    e.subEntries?.forEach(add);
+  };
+  add(entry);
+  return acc;
+}, {});
 
   const hotspotByIconId = hotspotClones.reduce<Map<number, MapHotSpot>>((acc, hs) => {
     acc.set(hs.mapIconId, hs);
