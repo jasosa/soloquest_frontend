@@ -140,12 +140,7 @@ function HeroQuestMap({ questData }: { questData: QuestData }) {
           </div>
         </div>
       </div>
-    )}
-      <div className="quest-controls">
-        <button type="button" onClick={handleStartQuest} disabled={questStarted}>
-          {questStarted ? "Quest Started" : "Start Quest"}
-        </button>
-      </div>
+    )}     
       <div className="hq-board">        
         <div
           className="hq-grid"
