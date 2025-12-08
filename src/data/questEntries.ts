@@ -8,16 +8,10 @@ export const QUEST_ENTRIES: QuestEntry[] = [
     imageUrl: "/images/nb_1.JPG",
     actions: [
       { type: "openPanel" },
+      { type: "chain", entryId: 1013 },
       //{ type: "reveal", iconIds: [11,12, 13, 14] },
     ],
-    subEntries: [
-      {   
-        id: 1011, 
-        title: "Revelar Trampas", 
-        description: "No hay trampas en esta habitación",
-        actions: [{ type: "openPanel" }] 
-      },
-    ]
+    subEntries: [1011],
   },
   {
     id: 102,
@@ -25,11 +19,31 @@ export const QUEST_ENTRIES: QuestEntry[] = [
     description: "...",
     imageUrl: "/images/nb_2.JPG",
     actions: [
-      { type: "openPanel" },
+      { type: "openPanel" },      
       //{ type: "reveal", iconIds: [21, 22, 23, 24] },
     ],
+    subEntries: [1012],
   },
-  // ...
+  { 
+    id: 1013, 
+    title: "Puerta Bloqueada", 
+    description: "Tomará demasiado tiempo romper esa puerta cerrada con fuerza bruta. Tal vezpodáis encontrar otraforma de abrirla",
+    actions: [
+      { type: "openPanel" },
+    ]
+  },
+  {   
+    id: 1011, 
+    title: "Revelar Trampas", 
+    description: "No hay trampas en esta habitación",
+    actions: [{ type: "openPanel" }] 
+  },
+    {   
+    id: 1012, 
+    title: "Revelar Trampas", 
+    description: "No hay trampas en esta sección del pasillo",
+    actions: [{ type: "openPanel" }] 
+  },
 ];
 
 

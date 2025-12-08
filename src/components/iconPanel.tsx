@@ -10,11 +10,13 @@ type IconPanelProps = {
   row: number;
   col: number;
   subEntries?: QuestEntry[];
+  hasChain?: boolean;
   onSelectSubEntry?: (id: number) => void;
+  onNext?: () => void;
   onClose: () => void;
 };
 
-export function IconPanel({ showDebugInfo, title, description, imageUrl, row, col, subEntries, onSelectSubEntry, onClose }: IconPanelProps) {
+export function IconPanel({ showDebugInfo, title, description, imageUrl, row, col, subEntries, hasChain, onSelectSubEntry, onNext, onClose }: IconPanelProps) {
   return (
     <div className="hq-modal-backdrop" onClick={onClose}>
       <div
@@ -39,7 +41,13 @@ export function IconPanel({ showDebugInfo, title, description, imageUrl, row, co
             <strong>Position:</strong> row {row}, col {col}
           </p>
         )}
-        {subEntries?.length ? (
+        {hasChain ? (
+        console.log('Chain action'),
+        <div className="subentry-actions">
+          <button onClick={onNext}>Next</button>
+        </div>
+        ) : subEntries?.length ? (
+          console.log('Subentry actions'),
           <div className="subentry-actions">
             {subEntries.map((sub) => (
               <button key={sub.id} onClick={() => onSelectSubEntry?.(sub.id)}>
@@ -48,7 +56,7 @@ export function IconPanel({ showDebugInfo, title, description, imageUrl, row, co
             ))}
           </div>
          ) : null}
-        <button onClick={onClose}>Close</button>
+        <button onClick={onClose}>Cerrar</button>
       </div>
     </div>
   );

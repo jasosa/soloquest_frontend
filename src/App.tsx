@@ -37,6 +37,8 @@ function App() {
 function HeroQuestMap({ questData }: { questData: QuestData }) {
   const [showIntro, setShowIntro] = useState(true);
   const [questStarted, setQuestStarted] = useState(false);
+  const [parentEntryId, setParentEntryId] = useState<number | null>(null);
+  const [consumedChains, setConsumedChains] = useState<Record<number, boolean>>({});
   const [panelHotspot, setPanelHotspot] = useState<MapHotSpot | null>(null);
   const { isVisible, runQuestEntry, selectedEntryId } = useQuestEngine(
     questData.icons,
@@ -59,8 +61,6 @@ function HeroQuestMap({ questData }: { questData: QuestData }) {
       { gridItems: [] as MapIcon[], overlayItems: [] as MapIcon[] }
     );
   }, [questData.icons]);
-
-  const selectedQuestEntry = selectedEntryId ? questData.questEntriesById[selectedEntryId] : null;
 
   // Fast lookup for grid cells
   const iconByPosition = useMemo(() => {
@@ -102,7 +102,7 @@ function HeroQuestMap({ questData }: { questData: QuestData }) {
   const handleIconClick = (icon: MapIcon) => {
     const hs = hotspotByIconId.get(icon.id);
     if (!hs || hs.clickable === false) return;
-    setPanelHotspot(hs);
+    setPanelHotspot(hs);    
     runQuestEntry(hs.questEntryId);
   };
 
@@ -127,6 +127,14 @@ function HeroQuestMap({ questData }: { questData: QuestData }) {
       );
     }     
   }
+
+  const selectedQuestEntry = selectedEntryId ? questData.questEntriesById[selectedEntryId] : null;
+  const resolvedSubEntries =
+  (selectedQuestEntry?.subEntries ?? [])
+    .map((id) => questData.questEntriesById[id])
+    .filter(Boolean);
+  const chainAction = selectedQuestEntry?.actions?.find(a => a.type === "chain");
+  const shouldShowChainNext =!!chainAction && !!selectedQuestEntry && !consumedChains[selectedQuestEntry.id];
 
   return (
     <>
@@ -176,6 +184,7 @@ function HeroQuestMap({ questData }: { questData: QuestData }) {
       </div>
 
         {selectedQuestEntry && panelHotspot && (
+          
         <IconPanel
           showDebugInfo={showDebug}
           title={selectedQuestEntry.title}
@@ -183,13 +192,31 @@ function HeroQuestMap({ questData }: { questData: QuestData }) {
           imageUrl={selectedQuestEntry.imageUrl}
           row={iconById.get(panelHotspot.mapIconId)?.row ?? 0}
           col={iconById.get(panelHotspot.mapIconId)?.col ?? 0}
-          subEntries={selectedQuestEntry.subEntries}
-           onSelectSubEntry={(id) => {
+          subEntries={!shouldShowChainNext ? resolvedSubEntries : undefined}
+          hasChain={shouldShowChainNext}
+          onSelectSubEntry={(id) => {
             //setPanelHotspot(null); // optional: close current panel
+            setParentEntryId(selectedQuestEntry?.id ?? null);
             runQuestEntry(id);
             setPanelHotspot(hotspotByIconId.get(iconById.get(panelHotspot.mapIconId)?.id ?? 0) ?? null);
           }}
-          onClose={() => setPanelHotspot(null)}
+          onNext={() => {
+            if (!chainAction || !selectedQuestEntry) return;
+            setConsumedChains((prev) => ({ ...prev, [selectedQuestEntry.id]: true }));
+            setParentEntryId(selectedQuestEntry.id);
+            runQuestEntry(chainAction.entryId);
+            //setPanelHotspot(panelHotspot)
+          }}
+          onClose={() =>{
+            if (parentEntryId) {
+              runQuestEntry(parentEntryId);
+              setParentEntryId(null);
+              setPanelHotspot(panelHotspot)              
+            }
+            else{
+              setPanelHotspot(null);
+            }
+          }} 
         />
       )}
     </>

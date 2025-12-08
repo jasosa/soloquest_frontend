@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { renderHook, waitFor } from "@testing-library/react";
+import { act, renderHook, waitFor } from "@testing-library/react";
 import { applyQuestEntry, type QuestEngineState, useQuestEngine } from "./questEngine";
 import type { QuestEntry } from "../types/mapHotSpots";
 import type { MapIcon } from "../types/mapIcon";
@@ -40,11 +40,12 @@ describe("quest engine", () => {
     expect(next.selectedEntryId).toBe(100);
   });
 
-  it("chains quest entries", () => {
+  it("skips chain actions until the UI triggers them", () => {
     const next = applyQuestEntry(101, questEntriesById, baseState);
 
-    expect(next.visibleById[2]).toBe(true);
-    expect(next.selectedEntryId).toBe(100); // chained entry opened the panel
+    expect(next).toBe(baseState);
+    expect(next.visibleById[2]).toBe(false);
+    expect(next.selectedEntryId).toBeNull();
   });
 
   it("auto-runs the quest's initial entry when a quest starts", async () => {
@@ -53,6 +54,42 @@ describe("quest engine", () => {
     await waitFor(() => {
       expect(result.current.selectedEntryId).toBe(100);
       expect(result.current.visibleById[2]).toBe(true);
+    });
+  });
+
+  it("ignores falsy entry ids when runQuestEntry is called", () => {
+    const { result } = renderHook(() => useQuestEngine(icons, questEntriesById));
+
+    act(() => {
+      result.current.runQuestEntry(null);
+      result.current.runQuestEntry(undefined);
+    });
+
+    expect(result.current.selectedEntryId).toBeNull();
+    expect(result.current.visibleById[2]).toBe(false);
+  });
+
+  it("resets state when the icon set changes", async () => {
+    const { result, rerender } = renderHook(
+      ({ icons, questEntriesById }) => useQuestEngine(icons, questEntriesById),
+      { initialProps: { icons, questEntriesById } }
+    );
+
+    act(() => result.current.runQuestEntry(100));
+
+    expect(result.current.selectedEntryId).toBe(100);
+    expect(result.current.visibleById[2]).toBe(true);
+
+    const nextIcons = [
+      { id: 1, row: 0, col: 0, type: "start", visible: false },
+      { id: 2, row: 0, col: 1, type: "monster", visible: false },
+    ];
+
+    rerender({ icons: nextIcons, questEntriesById });
+
+    await waitFor(() => {
+      expect(result.current.selectedEntryId).toBeNull();
+      expect(result.current.visibleById[2]).toBe(false);
     });
   });
 });

@@ -13,7 +13,7 @@ interface QuestEntry {
     title: string;
     description: string;
     imageUrl?: string;
-    subEntries?: QuestEntry[];
+    subEntries?: number[];
     actions?: QuestAction[];
 }
 

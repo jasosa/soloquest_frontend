@@ -1,59 +1,43 @@
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 import { buildQuestData } from "./buildQuestData";
+import type { Quest } from "../types/quest";
 import type { MapHotSpot, QuestEntry } from "../types/mapHotSpots";
-import { MAP_ICONS as SOURCE_ICONS } from "./mapIcons";
 
-// Provide a controlled icon list for the module under test.
-vi.mock("./mapIcons", () => ({
-  MAP_ICONS: [
-    { id: 10, row: 0, col: 0, type: "start", visible: true },
-    { id: 11, row: 0, col: 1, type: "monster", visible: false },
-  ],
-}));
+const quest: Quest = {
+  id: 999,
+  name: "Unit Test Quest",
+  intro: "Intro text",
+  initialEntryId: 10,
+};
 
-const hotspot = (overrides: Partial<MapHotSpot> = {}): MapHotSpot => ({
-  id: 1,
-  questEntryId: 1,
-  mapIconId: 10,
-  clickable: true,
-  openPanelOnClick: true,
-  ...overrides,
-});
+const hotspots: MapHotSpot[] = [
+  { id: 1, mapIconId: 2, questEntryId: 10 },
+];
 
-const questEntries: QuestEntry[] = [{ id: 1, title: "Test Quest", description: "Desc", imageUrl: "img" }];
-const quest = { initialEntryId: 1 };
+const questEntries: QuestEntry[] = [
+  {
+    id: 10,
+    title: "Reveal",
+    description: "Reveal an icon",
+    actions: [{ type: "reveal", iconIds: [2] }],
+  },
+];
 
 describe("buildQuestData", () => {
-  it("clones hotspots, icons, and builds helper maps", () => {
-    const hotspots = [hotspot()];
-
+  it("builds lookups and clones hotspots", () => {
     const result = buildQuestData(quest, hotspots, questEntries);
 
     expect(result.hotspots).toHaveLength(1);
     expect(result.hotspots[0]).not.toBe(hotspots[0]);
-    expect(result.hotspots[0]).toEqual(hotspots[0]);
-
-    expect(result.icons.map((i) => i.id)).toEqual([10, 11]);
-    expect(result.icons[0]).not.toBe(SOURCE_ICONS[0]); // ensure clone, not reference
-
-    expect(result.questEntriesById[1]).toEqual(questEntries[0]);
-    expect(result.hotspotByIconId.get(10)?.id).toBe(1);
-    expect(result.quest.initialEntryId).toBe(1);
+    expect(result.hotspotByIconId.get(2)?.questEntryId).toBe(10);
+    expect(result.questEntriesById[10].title).toBe("Reveal");
+    expect(result.quest).toBe(quest);
   });
 
-  it("leaves the source hotspot unmutated when result is changed", () => {
-    const hs = hotspot();
-    const result = buildQuestData(quest, [hs], questEntries);
+  it("applies fallback images for icons without an explicit image", () => {
+    const result = buildQuestData(quest, hotspots, questEntries);
+    const eyeIcon = result.icons.find((icon) => icon.id === 2);
 
-    // mutate result hotspot to verify the original is unchanged
-    result.hotspots[0].clickable = false;
-    expect(hs.clickable).toBe(true);
-  });
-
-  it("clones icons so mutations do not leak back to source data", () => {
-    const result = buildQuestData(quest, [hotspot()], questEntries);
-
-    result.icons[0].row = 99;
-    expect(SOURCE_ICONS[0].row).toBe(0);
+    expect(eyeIcon?.imageUrl).toBe("/icons/Eye.png");
   });
 });

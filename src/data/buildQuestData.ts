@@ -25,12 +25,8 @@ export function buildQuestData(
     return {...icon, imageUrl};
   });
   
- const questEntriesById = questEntries.reduce<Record<number, QuestEntry>>((acc, entry) => {
-  const add = (e: QuestEntry) => {
-    acc[e.id] = e;
-    e.subEntries?.forEach(add);
-  };
-  add(entry);
+const questEntriesById = questEntries.reduce<Record<number, QuestEntry>>((acc, entry) => {
+  acc[entry.id] = entry;
   return acc;
 }, {});
 

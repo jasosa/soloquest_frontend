@@ -78,10 +78,10 @@ function runEntry(
   let nextState = state;
   for (const action of actions) {
     if (action.type === "chain") {
-      nextState = runEntry(action.entryId, questEntriesById, nextState, visited);
-    } else {
-      nextState = applyAction(nextState, action, entryId);
+      // Chains are now user-triggered via UI ("Next" button), so skip auto-run.
+      continue;
     }
+    nextState = applyAction(nextState, action, entryId);
   }
   return nextState;
 }

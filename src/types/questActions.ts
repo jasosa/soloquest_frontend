@@ -7,5 +7,5 @@ export type QuestAction =
   | { type: "hide"; iconIds: number[] } // make listed icons hidden
   | { type: "toggle"; iconIds: number[] } // flip visibility
   | { type: "openPanel"; entryId?: number } // open a panel for the given entry (defaults to the current one)
-  | { type: "chain"; entryId: number } // immediately process another quest entry
+  | { type: "chain"; entryId: number } // indicates a follow-up entry; UI triggers it (no auto-run)
   | { type: "noop"; reason?: string }; // placeholder for content-only entries

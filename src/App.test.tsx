@@ -17,6 +17,6 @@ describe("quest start flow", () => {
     );
 
     //expect(screen.getByRole("button", { name: /quest started/i })).toBeDisabled();
-    expect(await screen.findByText(/Starting Room/i)).toBeInTheDocument();
+    expect(await screen.findByText(/Habitación inicial/i)).toBeInTheDocument();
   });
 });
