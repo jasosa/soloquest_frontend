@@ -8,6 +8,8 @@ describe("quest start flow", () => {
 
     expect(screen.getByText(/Online Quest 0 - New Beginnings/i)).toBeInTheDocument();
     expect(screen.getByText(/Prestad atención mis palabras/i)).toBeInTheDocument();
+    expect(screen.getByText(/ubicación inicial de los héroes/i)).toBeInTheDocument();
+    expect(screen.getByAltText(/ubicación inicial de los héroes/i)).toBeInTheDocument();
 
     const startButtons = screen.getAllByRole("button", { name: /start quest/i });
     fireEvent.click(startButtons[0]);

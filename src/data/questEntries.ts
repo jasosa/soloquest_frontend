@@ -27,7 +27,7 @@ export const QUEST_ENTRIES: QuestEntry[] = [
   { 
     id: 1013, 
     title: "Puerta Bloqueada", 
-    description: "Tomará demasiado tiempo romper esa puerta cerrada con fuerza bruta. Tal vezpodáis encontrar otraforma de abrirla",
+    description: "Tomará demasiado tiempo romper esa puerta cerrada con fuerza bruta. Tal vez podáis encontrar otraforma de abrirla",
     actions: [
       { type: "openPanel" },
     ]

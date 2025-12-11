@@ -3,4 +3,5 @@ export interface Quest {
   name: string;
   intro: string;
   initialEntryId: number;
+  introImageUrl: string;
 }

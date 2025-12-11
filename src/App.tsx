@@ -3,6 +3,7 @@ import "./App.css";
 import { IconCell } from "./components/iconCell";
 import { IconPanel } from "./components/iconPanel";
 import { OverlayIconCell } from "./components/overlayIconCell";
+import { QuestIntro } from "./components/questIntro";
 
 import type { MapIcon } from "./types/mapIcon";
 import type { MapHotSpot } from "./types/mapHotSpots";
@@ -139,16 +140,13 @@ function HeroQuestMap({ questData }: { questData: QuestData }) {
   return (
     <>
     {showIntro && (
-      <div className="quest-intro">
-        <div className="quest-intro__card">
-          <h2>{questData.quest.name}</h2>
-          <p className="quest-intro__body">{questData.quest.intro}</p>
-          <div className="quest-intro__actions">
-            <button onClick={() => setShowIntro(false)}>Back</button>
-            <button className="primary" onClick={handleStartQuest}>Start Quest</button>
-          </div>
-        </div>
-      </div>
+      <QuestIntro
+        title={questData.quest.name}
+        intro={questData.quest.intro}
+        imageUrl={questData.quest.introImageUrl}
+        onBack={() => setShowIntro(false)}
+        onStart={handleStartQuest}
+      />
     )}     
       <div className="hq-board">        
         <div
