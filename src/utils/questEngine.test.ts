@@ -25,11 +25,31 @@ const questEntriesById: Record<number, QuestEntry> = {
     description: "",
     actions: [{ type: "chain", entryId: 100 }],
   },
+  102: {
+    id: 102,
+    title: "Show hidden hotspots",
+    description: "",
+    actions: [{ type: "revealHotspots" }],
+  },
+  103: {
+    id: 103,
+    title: "Action image panel",
+    description: "",
+    imageUrl: "/fallback.png",
+    actions: [{ type: "openPanel", imageUrl: "/from-action.png" }],
+  },
+  104: {
+    id: 104,
+    title: "Context menu entry",
+    description: "Shows a contextual menu instead of a panel",
+    actions: [{ type: "openContextMenu" }],
+  },
 };
 
 const baseState: QuestEngineState = {
   visibleById: { 1: true, 2: false },
   selectedEntryId: null,
+  panelImageUrl: undefined,
 };
 
 describe("quest engine", () => {
@@ -38,6 +58,27 @@ describe("quest engine", () => {
 
     expect(next.visibleById[2]).toBe(true);
     expect(next.selectedEntryId).toBe(100);
+    expect(next.panelImageUrl).toBeUndefined();
+  });
+
+  it("reveals any hotspot icons when requested", () => {
+    const next = applyQuestEntry(102, questEntriesById, baseState, { hotspotIconIds: [2] });
+
+    expect(next.visibleById[2]).toBe(true);
+  });
+
+  it("uses the action image when opening a panel", () => {
+    const next = applyQuestEntry(103, questEntriesById, baseState);
+
+    expect(next.selectedEntryId).toBe(103);
+    expect(next.panelImageUrl).toBe("/from-action.png");
+  });
+
+  it("opens a contextual menu without carrying panel images", () => {
+    const next = applyQuestEntry(104, questEntriesById, baseState);
+
+    expect(next.selectedEntryId).toBe(104);
+    expect(next.panelImageUrl).toBeUndefined();
   });
 
   it("skips chain actions until the UI triggers them", () => {
@@ -49,7 +90,9 @@ describe("quest engine", () => {
   });
 
   it("auto-runs the quest's initial entry when a quest starts", async () => {
-    const { result } = renderHook(() => useQuestEngine(icons, questEntriesById, 100));
+    const { result } = renderHook(() =>
+      useQuestEngine(icons, questEntriesById, { initialEntryId: 100, hotspotIconIds: [2] })
+    );
 
     await waitFor(() => {
       expect(result.current.selectedEntryId).toBe(100);

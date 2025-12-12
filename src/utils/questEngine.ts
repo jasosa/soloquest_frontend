@@ -7,11 +7,13 @@ import { createInitialVisibilityMap, type VisibilityMap } from "./iconVisibility
 export type QuestEngineState = {
   visibleById: VisibilityMap;
   selectedEntryId: number | null;
+  panelImageUrl?: string;
 };
 
 const initialState = (icons: MapIcon[]): QuestEngineState => ({
   visibleById: createInitialVisibilityMap(icons),
   selectedEntryId: null,
+  panelImageUrl: undefined,
 });
 
 const updateVisibility = (
@@ -35,7 +37,9 @@ const updateVisibility = (
 const applyAction = (
   state: QuestEngineState,
   action: QuestAction,
-  contextEntryId: number
+  contextEntryId: number,
+  questEntriesById: Record<number, QuestEntry>,
+  hotspotIconIds: number[]
 ): QuestEngineState => {
   switch (action.type) {
     case "reveal":
@@ -53,8 +57,28 @@ const applyAction = (
         ...state,
         visibleById: updateVisibility(state.visibleById, action.iconIds, (prev) => !prev),
       };
-    case "openPanel":
-      return { ...state, selectedEntryId: action.entryId ?? contextEntryId };
+    case "revealHotspots":
+      return {
+        ...state,
+        visibleById: updateVisibility(state.visibleById, hotspotIconIds, () => true),
+      };
+    case "openPanel": {
+      const targetEntryId = action.entryId ?? contextEntryId;
+      const entryImage = questEntriesById[targetEntryId]?.imageUrl;
+      return {
+        ...state,
+        selectedEntryId: targetEntryId,
+        panelImageUrl: action.imageUrl ?? entryImage,
+      };
+    }
+    case "openContextMenu": {
+      const targetEntryId = action.entryId ?? contextEntryId;
+      return {
+        ...state,
+        selectedEntryId: targetEntryId,
+        panelImageUrl: undefined,
+      };
+    }
     case "noop":
       return state;
     default:
@@ -66,7 +90,8 @@ function runEntry(
   entryId: number,
   questEntriesById: Record<number, QuestEntry>,
   state: QuestEngineState,
-  visited: Set<number>
+  visited: Set<number>,
+  hotspotIconIds: number[]
 ): QuestEngineState {
   if (visited.has(entryId)) return state; // avoid cycles
   const entry = questEntriesById[entryId];
@@ -81,7 +106,7 @@ function runEntry(
       // Chains are now user-triggered via UI ("Next" button), so skip auto-run.
       continue;
     }
-    nextState = applyAction(nextState, action, entryId);
+    nextState = applyAction(nextState, action, entryId, questEntriesById, hotspotIconIds);
   }
   return nextState;
 }
@@ -89,17 +114,21 @@ function runEntry(
 export function applyQuestEntry(
   entryId: number,
   questEntriesById: Record<number, QuestEntry>,
-  state: QuestEngineState
+  state: QuestEngineState,
+  options?: { hotspotIconIds?: number[] }
 ): QuestEngineState {
-  return runEntry(entryId, questEntriesById, state, new Set());
+  const hotspotIconIds = options?.hotspotIconIds ?? [];
+  return runEntry(entryId, questEntriesById, state, new Set(), hotspotIconIds);
 }
 
 export function useQuestEngine(
   icons: MapIcon[],
   questEntriesById: Record<number, QuestEntry>,
-  initialEntryId?: number
+  options?: { initialEntryId?: number; hotspotIconIds?: number[] }
 ) {
   const [state, setState] = useState<QuestEngineState>(() => initialState(icons));
+  const initialEntryId = options?.initialEntryId;
+  const hotspotIconIds = options?.hotspotIconIds ?? [];
 
   useEffect(() => {
     setState(initialState(icons));
@@ -108,15 +137,15 @@ export function useQuestEngine(
   useEffect(() => {
     if (!initialEntryId) return;
     console.log("initial", initialEntryId, questEntriesById[initialEntryId]);
-    setState((prev) => applyQuestEntry(initialEntryId, questEntriesById, prev));
-  }, [initialEntryId, questEntriesById, icons]);
+    setState((prev) => applyQuestEntry(initialEntryId, questEntriesById, prev, { hotspotIconIds }));
+  }, [initialEntryId, questEntriesById, icons, hotspotIconIds]);
 
   const runQuestEntry = useCallback(
     (entryId: number | null | undefined) => {
       if (!entryId) return;
-      setState((prev) => applyQuestEntry(entryId, questEntriesById, prev));
+      setState((prev) => applyQuestEntry(entryId, questEntriesById, prev, { hotspotIconIds }));
     },
-    [questEntriesById]
+    [questEntriesById, hotspotIconIds]
   );
 
   const isVisible = useCallback((iconId: number) => !!state.visibleById[iconId], [state.visibleById]);

@@ -4,6 +4,7 @@ import { IconCell } from "./components/iconCell";
 import { IconPanel } from "./components/iconPanel";
 import { OverlayIconCell } from "./components/overlayIconCell";
 import { QuestIntro } from "./components/questIntro";
+import { ContextMenu } from "./components/contextMenu";
 
 import type { MapIcon } from "./types/mapIcon";
 import type { MapHotSpot } from "./types/mapHotSpots";
@@ -41,9 +42,16 @@ function HeroQuestMap({ questData }: { questData: QuestData }) {
   const [parentEntryId, setParentEntryId] = useState<number | null>(null);
   const [consumedChains, setConsumedChains] = useState<Record<number, boolean>>({});
   const [panelHotspot, setPanelHotspot] = useState<MapHotSpot | null>(null);
-  const { isVisible, runQuestEntry, selectedEntryId } = useQuestEngine(
+  const [contextMenuHotspot, setContextMenuHotspot] = useState<MapHotSpot | null>(null);
+  const [contextMenuDismissed, setContextMenuDismissed] = useState(false);
+  const hotspotIconIds = useMemo(
+    () => Array.from(new Set(questData.hotspots.map((hs) => hs.mapIconId))),
+    [questData.hotspots]
+  );
+  const { isVisible, runQuestEntry, selectedEntryId, panelImageUrl } = useQuestEngine(
     questData.icons,
-    questData.questEntriesById
+    questData.questEntriesById,
+    { hotspotIconIds }
   );
 
   useEffect(() => {
@@ -90,6 +98,24 @@ function HeroQuestMap({ questData }: { questData: QuestData }) {
     [questData.hotspots, questData.quest.initialEntryId]
   );
 
+  const selectedQuestEntry = useMemo(
+    () => (selectedEntryId ? questData.questEntriesById[selectedEntryId] : null),
+    [selectedEntryId, questData.questEntriesById]
+  );
+  const wantsContextMenu = selectedQuestEntry?.actions?.some((a) => a.type === "openContextMenu");
+
+  useEffect(() => {
+    setContextMenuDismissed(false);
+  }, [selectedEntryId]);
+
+  useEffect(() => {
+    if (wantsContextMenu && panelHotspot && !contextMenuDismissed) {
+      setContextMenuHotspot(panelHotspot);
+    } else {
+      setContextMenuHotspot(null);
+    }
+  }, [panelHotspot, selectedQuestEntry, wantsContextMenu, contextMenuDismissed]);
+
   const handleStartQuest = () => {
     if (questStarted) return;
     setQuestStarted(true);
@@ -129,13 +155,20 @@ function HeroQuestMap({ questData }: { questData: QuestData }) {
     }     
   }
 
-  const selectedQuestEntry = selectedEntryId ? questData.questEntriesById[selectedEntryId] : null;
   const resolvedSubEntries =
   (selectedQuestEntry?.subEntries ?? [])
     .map((id) => questData.questEntriesById[id])
     .filter(Boolean);
   const chainAction = selectedQuestEntry?.actions?.find(a => a.type === "chain");
   const shouldShowChainNext =!!chainAction && !!selectedQuestEntry && !consumedChains[selectedQuestEntry.id];
+  const contextMenuIcon = contextMenuHotspot ? iconById.get(contextMenuHotspot.mapIconId) : null;
+  const contextMenuPosition =
+    contextMenuIcon
+      ? {
+          top: `${((contextMenuIcon.row + (contextMenuIcon.rowOffset ?? 0) + 0.5) / ROWS) * 100}%`,
+          left: `${((contextMenuIcon.col + (contextMenuIcon.colOffset ?? 0) + 0.5) / COLS) * 100}%`,
+        }
+      : null;
 
   return (
     <>
@@ -179,15 +212,32 @@ function HeroQuestMap({ questData }: { questData: QuestData }) {
             );
           })}
         </div>
+        {selectedQuestEntry && wantsContextMenu && contextMenuHotspot && contextMenuPosition && (
+          <ContextMenu
+            title={selectedQuestEntry.title}
+            description={selectedQuestEntry.description}
+            position={contextMenuPosition}
+            subEntries={!shouldShowChainNext ? resolvedSubEntries : undefined}
+            onSelectSubEntry={(id) => {
+              setParentEntryId(selectedQuestEntry?.id ?? null);
+              runQuestEntry(id);
+              setPanelHotspot(hotspotByIconId.get(contextMenuHotspot.mapIconId) ?? null);
+            }}
+            onClose={() => {
+              setContextMenuDismissed(true);
+              setContextMenuHotspot(null);
+            }}
+          />
+        )}
       </div>
 
-        {selectedQuestEntry && panelHotspot && (
+        {selectedQuestEntry && panelHotspot && !wantsContextMenu && (
           
         <IconPanel
           showDebugInfo={showDebug}
           title={selectedQuestEntry.title}
           description={selectedQuestEntry.description}
-          imageUrl={selectedQuestEntry.imageUrl}
+          imageUrl={panelImageUrl}
           row={iconById.get(panelHotspot.mapIconId)?.row ?? 0}
           col={iconById.get(panelHotspot.mapIconId)?.col ?? 0}
           subEntries={!shouldShowChainNext ? resolvedSubEntries : undefined}
